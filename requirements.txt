@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+websockets
+httpx
+faker
+watchdog
+mitreattack-python
+python-dotenv
+requests
+aiosqlite
+redis
+pandas
+reportlab
+python-magic
+chardet
+jsonlines
+python-multipart
