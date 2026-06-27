@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Target, Info, ShieldAlert, Award } from 'lucide-react';
+import { Target, ShieldAlert, Award } from 'lucide-react';
 
 const TACTICS = [
   {

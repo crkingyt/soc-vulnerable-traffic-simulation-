@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserMinus, ShieldAlert, CheckCircle, RefreshCw, Trash2, ShieldX, Loader } from 'lucide-react';
+import { UserMinus, CheckCircle, RefreshCw, Trash2, Loader } from 'lucide-react';
 
 export default function BlockedIpsManager({ blockedIpsList, triggerRefresh }) {
   const [unblockingIp, setUnblockingIp] = useState(null);
@@ -10,7 +10,7 @@ export default function BlockedIpsManager({ blockedIpsList, triggerRefresh }) {
         return ts.replace('T', ' ').substring(0, 19);
       }
       return ts;
-    } catch (e) {
+    } catch {
       return ts;
     }
   };

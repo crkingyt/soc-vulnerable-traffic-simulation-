@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Globe, Search, ShieldAlert, CheckCircle, ShieldX, Skull, Loader } from 'lucide-react';
+import { Globe, Search, ShieldX, Skull, Loader } from 'lucide-react';
 
 export default function ThreatIntelManager({ alerts }) {
   const [ipInput, setIpInput] = useState('');

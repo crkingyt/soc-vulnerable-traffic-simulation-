@@ -1,15 +1,15 @@
 import os
+import asyncio
 import json
 import uuid
 from io import BytesIO
-from datetime import datetime
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Query, UploadFile, File, Form, BackgroundTasks
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, UploadFile, File, Form, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi.responses import StreamingResponse
 
 from database import Database
 from log_collector import LogCollector, register_callback
-from response import block_ip, is_ip_blocked, unblock_ip
+from response import block_ip, unblock_ip
 from threat_intel import check_ip
 from hunting import hunt_events
 from incident import create_incident, get_all_incidents, update_incident
@@ -93,7 +93,6 @@ async def startup_event():
 
 @app.on_event("shutdown")
 def shutdown_event():
-    global log_collector
     if log_collector:
         log_collector.stop()
 
@@ -208,6 +207,7 @@ async def get_dashboard_metrics():
     
     # Simulator states
     eps = 10
+    vulnerable_percent = 5.0
     is_sim_running = False
     config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../simulation/live_config.json"))
     if os.path.exists(config_path):
@@ -215,6 +215,7 @@ async def get_dashboard_metrics():
             with open(config_path, "r") as f:
                 cfg = json.load(f)
                 eps = cfg.get("eps", 10)
+                vulnerable_percent = cfg.get("vulnerable_percent", 5.0)
                 is_sim_running = cfg.get("is_running", False)
         except Exception:
             pass
@@ -230,6 +231,8 @@ async def get_dashboard_metrics():
         "attack_distribution": attack_dist,
         "top_attacking_ips": top_ips,
         "is_simulation_running": is_sim_running,
+        "simulator_eps": eps,
+        "vulnerable_percent": vulnerable_percent,
         "blocked_ips_list": [dict(r) for r in await Database.execute("SELECT ip, timestamp, reason, threat_score, blocked_by FROM blocked_ips ORDER BY timestamp DESC")],
         "top_mitre_techniques": [{"technique_id": r["mitre_id"], "attack_type": r["attack_type"], "count": r["cnt"]} for r in await Database.execute("SELECT mitre_id, attack_type, COUNT(1) as cnt FROM alerts GROUP BY mitre_id, attack_type ORDER BY cnt DESC LIMIT 5")]
     }
@@ -661,13 +664,10 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             # Keep connection alive, listen for ping or control commands if any
-            data = await websocket.receive_text()
+            await websocket.receive_text()
             # Echo or process commands if needed
     except WebSocketDisconnect:
         manager.disconnect(websocket)
     except Exception as e:
         print(f"[WS] WebSocket error: {e}")
         manager.disconnect(websocket)
-
-# Wrap import of asyncio to handle startup initialization safely
-import asyncio

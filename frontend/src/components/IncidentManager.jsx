@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Compass, AlertTriangle, User, FileText, CheckCircle2, RefreshCw } from 'lucide-react';
+import React, { useState } from 'react';
+import { Compass, User, FileText, CheckCircle2, RefreshCw } from 'lucide-react';
 
 export default function IncidentManager({ incidents, onUpdateIncident, triggerRefresh }) {
   const [editingId, setEditingId] = useState(null);

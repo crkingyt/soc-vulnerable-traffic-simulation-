@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Activity, ShieldCheck, Compass, HelpCircle, AlertTriangle, HelpCircle as HelpIcon } from 'lucide-react';
+import { Activity, ShieldCheck, HelpCircle as HelpIcon } from 'lucide-react';
 
 const STAGES = [
   {

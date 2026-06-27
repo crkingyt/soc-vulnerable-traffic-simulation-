@@ -9,7 +9,7 @@ export default function RecentLogs({ logs }) {
         return ts.split('T')[1].substring(0, 8);
       }
       return ts.substring(11, 19) || ts;
-    } catch (e) {
+    } catch {
       return ts;
     }
   };

@@ -1,11 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from database import Database
 
 async def create_incident(attack_type: str, severity: str, status: str = "Open", notes: str = None, analyst: str = None, alert_ids: list = None) -> int:
     """
     Creates a new incident record in the database, associates it with alerts, and flags alerts as Escalated.
     """
-    now = datetime.utcnow().isoformat() + "Z"
+    now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     incident_id = await Database.insert("""
         INSERT INTO incidents (attack_type, severity, status, analyst_notes, assigned_analyst, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -50,7 +50,7 @@ async def update_incident(incident_id: int, status: str = None, notes: str = Non
     """
     Updates status, notes, and analyst assignments on an existing incident.
     """
-    now = datetime.utcnow().isoformat() + "Z"
+    now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     updates = []
     params = []
     

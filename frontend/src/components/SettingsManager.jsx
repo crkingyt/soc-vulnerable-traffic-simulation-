@@ -1,12 +1,30 @@
-import React, { useState } from 'react';
-import { Settings, Play, Square, Sliders, AlertOctagon, RefreshCw, Trash2, CheckCircle2, Loader } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Settings, Play, Square, Sliders, AlertOctagon, Trash2, CheckCircle2, Loader } from 'lucide-react';
 
 export default function SettingsManager({ metrics, onConfigChange, triggerRefresh }) {
-  const [eps, setEps] = useState(metrics.current_eps || 10);
-  const [vulnPercent, setVulnPercent] = useState(5.0);
+  const [eps, setEps] = useState(metrics.simulator_eps || 10);
+  const [vulnPercent, setVulnPercent] = useState(metrics.vulnerable_percent || 5.0);
   const [isRunning, setIsRunning] = useState(metrics.is_simulation_running || false);
   const [purging, setPurging] = useState(false);
   const [purgeSuccess, setPurgeSuccess] = useState(false);
+
+  const lastMetricsRef = useRef({ eps: null, vuln: null, isRunning: null });
+
+  // Sync state with incoming metrics only when server-side configuration changes
+  useEffect(() => {
+    if (metrics.simulator_eps && metrics.simulator_eps !== lastMetricsRef.current.eps) {
+      setEps(metrics.simulator_eps);
+      lastMetricsRef.current.eps = metrics.simulator_eps;
+    }
+    if (metrics.vulnerable_percent && metrics.vulnerable_percent !== lastMetricsRef.current.vuln) {
+      setVulnPercent(metrics.vulnerable_percent);
+      lastMetricsRef.current.vuln = metrics.vulnerable_percent;
+    }
+    if (metrics.is_simulation_running !== undefined && metrics.is_simulation_running !== lastMetricsRef.current.isRunning) {
+      setIsRunning(metrics.is_simulation_running);
+      lastMetricsRef.current.isRunning = metrics.is_simulation_running;
+    }
+  }, [metrics]);
 
   const handleConfigSubmit = async (e) => {
     e.preventDefault();

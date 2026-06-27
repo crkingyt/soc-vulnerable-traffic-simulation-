@@ -48,10 +48,10 @@ def save_live_config():
     except Exception as e:
         print(f"Error saving live config: {e}")
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 async def write_mock_log(target_name: str, request_data: dict, status_code: int = 200):
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     method = request_data["method"]
     path = request_data["path"]
     

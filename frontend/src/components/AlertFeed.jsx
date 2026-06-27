@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Shield, ShieldAlert, ShieldOff, CheckCircle2, ChevronDown, ChevronUp, Loader } from 'lucide-react';
+import { Shield, ShieldAlert, ShieldOff, CheckCircle2, ChevronDown, ChevronUp, Loader, FolderPlus } from 'lucide-react';
 
-export default function AlertFeed({ alerts, onBlock, onDismiss }) {
+export default function AlertFeed({ alerts, onBlock, onDismiss, onEscalate }) {
   const [expandedAlertId, setExpandedAlertId] = useState(null);
   const [intelData, setIntelData] = useState({});
   const [loadingIntel, setLoadingIntel] = useState(false);
@@ -184,6 +184,24 @@ export default function AlertFeed({ alerts, onBlock, onDismiss }) {
 
                     {/* Actions Panel */}
                     <div className="flex justify-end space-x-2 pt-2 border-t border-slate-800/40">
+                      {onEscalate && alert.status !== 'Escalated' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEscalate({
+                              attack_type: alert.attack_type,
+                              severity: alert.severity,
+                              alert_ids: [alert.id],
+                              analyst_notes: `Escalated from Real-Time Alert Feed. IP: ${alert.source_ip} querying ${alert.server.toUpperCase()}`
+                            });
+                          }}
+                          className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white border border-blue-500/20 rounded-lg transition-all font-medium"
+                        >
+                          <FolderPlus className="w-4 h-4" />
+                          <span>Escalate Alert</span>
+                        </button>
+                      )}
+
                       {isBlocked ? (
                         <span className="flex items-center text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg font-semibold space-x-1.5">
                           <Shield className="w-4 h-4" />

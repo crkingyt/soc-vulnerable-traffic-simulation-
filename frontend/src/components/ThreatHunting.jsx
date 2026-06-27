@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShieldAlert, FolderPlus, Compass, Calendar, Terminal } from 'lucide-react';
+import { Search, FolderPlus, Compass } from 'lucide-react';
 
 export default function ThreatHunting({ onCreateIncident }) {
   const [ip, setIp] = useState('');
@@ -14,16 +14,23 @@ export default function ThreatHunting({ onCreateIncident }) {
   const [limit] = useState(15);
   const [page, setPage] = useState(1);
 
-  const fetchResults = async () => {
+  const fetchResults = async (overrideParams = {}) => {
     setLoading(true);
     try {
-      const offset = (page - 1) * limit;
+      const currentPage = overrideParams.hasOwnProperty('page') ? overrideParams.page : page;
+      const currentIp = overrideParams.hasOwnProperty('ip') ? overrideParams.ip : ip;
+      const currentUri = overrideParams.hasOwnProperty('uri') ? overrideParams.uri : uri;
+      const currentUa = overrideParams.hasOwnProperty('ua') ? overrideParams.ua : ua;
+      const currentAttackType = overrideParams.hasOwnProperty('attackType') ? overrideParams.attackType : attackType;
+      const currentSeverity = overrideParams.hasOwnProperty('severity') ? overrideParams.severity : severity;
+
+      const offset = (currentPage - 1) * limit;
       let query = `/api/hunt?limit=${limit}&offset=${offset}`;
-      if (ip) query += `&source_ip=${encodeURIComponent(ip)}`;
-      if (uri) query += `&uri=${encodeURIComponent(uri)}`;
-      if (ua) query += `&user_agent=${encodeURIComponent(ua)}`;
-      if (attackType) query += `&attack_type=${encodeURIComponent(attackType)}`;
-      if (severity) query += `&severity=${encodeURIComponent(severity)}`;
+      if (currentIp) query += `&source_ip=${encodeURIComponent(currentIp)}`;
+      if (currentUri) query += `&uri=${encodeURIComponent(currentUri)}`;
+      if (currentUa) query += `&user_agent=${encodeURIComponent(currentUa)}`;
+      if (currentAttackType) query += `&attack_type=${encodeURIComponent(currentAttackType)}`;
+      if (currentSeverity) query += `&severity=${encodeURIComponent(currentSeverity)}`;
 
       const res = await fetch(query);
       if (res.ok) {
@@ -40,12 +47,13 @@ export default function ThreatHunting({ onCreateIncident }) {
 
   useEffect(() => {
     fetchResults();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   const handleSearch = (e) => {
     e.preventDefault();
     setPage(1);
-    fetchResults();
+    fetchResults({ page: 1 });
   };
 
   const clearFilters = () => {
@@ -55,6 +63,14 @@ export default function ThreatHunting({ onCreateIncident }) {
     setAttackType('');
     setSeverity('');
     setPage(1);
+    fetchResults({
+      ip: '',
+      uri: '',
+      ua: '',
+      attackType: '',
+      severity: '',
+      page: 1
+    });
   };
 
   return (

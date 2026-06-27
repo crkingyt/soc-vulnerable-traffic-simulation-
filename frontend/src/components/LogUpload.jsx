@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  UploadCloud, CheckCircle, ShieldAlert, AlertTriangle, Play, 
-  FileText, Trash2, Loader2, AlertCircle, Shield, FileDown, 
-  ExternalLink, BarChart3, HelpCircle 
+  UploadCloud, ShieldAlert, Play, 
+  FileText, Trash2, Loader2, Shield, FileDown, 
+  BarChart3 
 } from 'lucide-react';
 import { 
   PieChart, Pie, Cell, ResponsiveContainer, 
@@ -23,7 +23,7 @@ export default function LogUpload() {
   
   const [jobId, setJobId] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
+
   const [jobStatus, setJobStatus] = useState(null);
   const [history, setHistory] = useState([]);
   
@@ -164,7 +164,7 @@ export default function LogUpload() {
     }
   };
 
-  const handleBlockIP = async (alertId, ip) => {
+  const handleBlockIP = async (alertId, _ip) => {
     try {
       const res = await fetch(`/api/alerts/${alertId}/block`, {
         method: 'POST',

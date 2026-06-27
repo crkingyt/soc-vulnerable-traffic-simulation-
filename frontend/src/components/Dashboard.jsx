@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Zap, Database, ShieldAlert, Skull, CheckCircle, UserMinus, 
-  Play, Square, Sliders, AlertTriangle, Activity, SlidersHorizontal 
+  SlidersHorizontal 
 } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area } from 'recharts';
 
@@ -27,17 +27,27 @@ export default function Dashboard({
   setActiveTab,
   incidents = []
 }) {
-  const [eps, setEps] = useState(metrics.current_eps || 10);
-  const [vulnPercent, setVulnPercent] = useState(5.0);
+  const [eps, setEps] = useState(metrics.simulator_eps || 10);
+  const [vulnPercent, setVulnPercent] = useState(metrics.vulnerable_percent || 5.0);
   const [isRunning, setIsRunning] = useState(metrics.is_simulation_running || false);
   const [showConfig, setShowConfig] = useState(false);
 
-  // Sync state with incoming metrics
+  const lastMetricsRef = useRef({ eps: null, vuln: null, isRunning: null });
+
+  // Sync state with incoming metrics only when server-side configuration changes
   useEffect(() => {
-    if (metrics.current_eps) {
-      setEps(metrics.current_eps);
+    if (metrics.simulator_eps && metrics.simulator_eps !== lastMetricsRef.current.eps) {
+      setEps(metrics.simulator_eps);
+      lastMetricsRef.current.eps = metrics.simulator_eps;
     }
-    setIsRunning(metrics.is_simulation_running);
+    if (metrics.vulnerable_percent && metrics.vulnerable_percent !== lastMetricsRef.current.vuln) {
+      setVulnPercent(metrics.vulnerable_percent);
+      lastMetricsRef.current.vuln = metrics.vulnerable_percent;
+    }
+    if (metrics.is_simulation_running !== undefined && metrics.is_simulation_running !== lastMetricsRef.current.isRunning) {
+      setIsRunning(metrics.is_simulation_running);
+      lastMetricsRef.current.isRunning = metrics.is_simulation_running;
+    }
   }, [metrics]);
 
   const handleConfigSubmit = async (e) => {
@@ -65,7 +75,7 @@ export default function Dashboard({
         return ts.split('T')[1].substring(0, 8);
       }
       return ts.substring(11, 19) || ts;
-    } catch (e) {
+    } catch {
       return ts;
     }
   };

@@ -3,10 +3,8 @@ import re
 import csv
 import json
 import gzip
-import uuid
 import chardet
 from datetime import datetime, timedelta
-import asyncio
 
 # Attempt importing python-magic, fallback to extension/header inspect if unavailable
 try:
@@ -171,7 +169,6 @@ def parse_syslog_line(line):
     if not match:
         return None
         
-    pri = match.group(1)
     timestamp_str = match.group(2)
     source_ip = match.group(3)
     

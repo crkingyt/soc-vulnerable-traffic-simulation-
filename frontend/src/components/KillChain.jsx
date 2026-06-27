@@ -1,5 +1,5 @@
 import React from 'react';
-import { Eye, Hammer, Send, Zap, Wrench, Radio, Target, HelpCircle } from 'lucide-react';
+import { Eye, Hammer, Send, Zap, Wrench, Radio, Target } from 'lucide-react';
 
 const STAGES = [
   { id: 'Reconnaissance', label: 'Reconnaissance', icon: Eye },
@@ -31,7 +31,7 @@ export default function KillChain({ alerts }) {
         {/* Horizontal Connection Line */}
         <div className="absolute top-1/2 left-8 right-8 h-[2px] bg-slate-800 -translate-y-1/2 z-0" />
 
-        {STAGES.map((stage, idx) => {
+        {STAGES.map((stage) => {
           const Icon = stage.icon;
           const isTriggered = triggeredStages.has(stage.label) || triggeredStages.has(stage.id);
           

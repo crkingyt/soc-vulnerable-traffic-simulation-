@@ -1,4 +1,3 @@
-import os
 import subprocess
 import platform
 from datetime import datetime
@@ -13,15 +12,13 @@ async def block_ip(ip: str, reason: str, threat_score: int, blocked_by: str = "a
     
     # 1. Execute system command based on OS
     system_os = platform.system().lower()
-    command_success = False
     
     try:
         if system_os == "linux":
             # Command: iptables -A INPUT -s <ip> -j DROP
             cmd = ["iptables", "-A", "INPUT", "-s", ip, "-j", "DROP"]
             # Proactively run block command (run as dry-run fallback if permission denied)
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            command_success = True
+            subprocess.run(cmd, capture_output=True, text=True, check=True)
         elif system_os == "windows":
             # Command: netsh advfirewall firewall add rule name="SOC Block <ip>" dir=in action=block remoteip=<ip>
             rule_name = f"SOC Block {ip}"
@@ -29,13 +26,11 @@ async def block_ip(ip: str, reason: str, threat_score: int, blocked_by: str = "a
                 "netsh", "advfirewall", "firewall", "add", "rule",
                 f"name={rule_name}", "dir=in", "action=block", f"remoteip={ip}"
             ]
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            command_success = True
+            subprocess.run(cmd, capture_output=True, text=True, check=True)
         else:
             print(f"[RESPONSE ENGINE] Unsupported OS for firewall execution: {system_os}")
     except Exception as e:
         print(f"[RESPONSE ENGINE] Firewall block command failed for {ip} (Reason: {e}). Falling back to mock database logging.")
-        command_success = False
         
     # 2. Record to sqlite blocked_ips table
     try:

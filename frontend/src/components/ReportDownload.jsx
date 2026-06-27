@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileDown, Calendar, AlertCircle } from 'lucide-react';
+import { FileDown, AlertCircle } from 'lucide-react';
 
 export default function ReportDownload() {
   const [format, setFormat] = useState('pdf');

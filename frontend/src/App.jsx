@@ -11,7 +11,7 @@ import KillChainDetail from './components/KillChainDetail';
 import ThreatIntelManager from './components/ThreatIntelManager';
 import BlockedIpsManager from './components/BlockedIpsManager';
 import SettingsManager from './components/SettingsManager';
-import { Shield, Radio, ShieldCheck } from 'lucide-react';
+import { Radio, ShieldCheck } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -31,17 +31,12 @@ export default function App() {
     blocked_ips: 0,
     attack_distribution: {},
     top_attacking_ips: [],
-    is_simulation_running: false
+    is_simulation_running: false,
+    simulator_eps: 10,
+    vulnerable_percent: 5.0
   });
 
-  const [systemStatus, setSystemStatus] = useState({
-    apache: false,
-    iis: false,
-    collector: false,
-    detection: false,
-    response: false,
-    database: false
-  });
+
 
   const wsRef = useRef(null);
 
@@ -53,20 +48,11 @@ export default function App() {
         const data = await res.json();
         setMetrics(data);
         
-        // Update service indicator statuses
-        setSystemStatus({
-          apache: true,
-          iis: true,
-          collector: true,
-          detection: true,
-          response: true,
-          database: true
-        });
 
-        // Add to EPS history timeline
+
         setEpsHistory(prev => {
           const newPoint = { 
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }), 
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }), 
             eps: data.current_eps || 0 
           };
           const nextHistory = [...prev, newPoint];
@@ -76,19 +62,10 @@ export default function App() {
           return nextHistory;
         });
       } else {
-        setSystemStatus(prev => ({ ...prev, database: false }));
+        // Handle database status error
       }
     } catch (e) {
       console.error("Failed to query API metrics", e);
-      // Turn lights red on connection failure
-      setSystemStatus({
-        apache: false,
-        iis: false,
-        collector: false,
-        detection: false,
-        response: false,
-        database: false
-      });
     }
   };
 
@@ -215,6 +192,7 @@ export default function App() {
       clearInterval(incidentInterval);
       if (wsRef.current) wsRef.current.close();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 4. API Event Handlers
@@ -356,6 +334,7 @@ export default function App() {
                 alerts={alerts} 
                 onBlock={handleBlock} 
                 onDismiss={handleDismiss} 
+                onEscalate={handleCreateIncident}
               />
             </div>
           )}

@@ -191,7 +191,7 @@ class LogCollector:
             os.makedirs(directory, exist_ok=True)
             # Create file if not exists
             if not os.path.exists(path):
-                with open(path, "w") as f:
+                with open(path, "w"):
                     pass
                     
         self.observer = Observer()

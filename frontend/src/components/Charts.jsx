@@ -9,7 +9,6 @@ import {
   XAxis, 
   YAxis, 
   Tooltip, 
-  Legend, 
   AreaChart, 
   Area 
 } from 'recharts';
@@ -149,14 +148,21 @@ export default function Charts({ metrics, epsHistory }) {
                   <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <XAxis stroke="#475569" fontSize={8} tickLine={false} />
+              <XAxis 
+                dataKey="time" 
+                tickFormatter={(t) => (t && t.includes(':') ? t.split(':').slice(0, 2).join(':') : t)} 
+                stroke="#475569" 
+                fontSize={8} 
+                tickLine={false} 
+              />
               <YAxis stroke="#475569" fontSize={8} tickLine={false} domain={[0, 'dataMax + 2']} />
               <Tooltip 
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
                     return (
                       <div className="bg-[#0b111e] border border-slate-800 p-2.5 rounded-lg text-xs font-mono">
-                        <p className="text-slate-300">{`EPS: ${payload[0].value.toFixed(1)}/sec`}</p>
+                        <p className="text-slate-500 text-[10px] mb-1">{payload[0].payload.time}</p>
+                        <p className="text-blue-400 font-bold">{`EPS: ${payload[0].value.toFixed(1)}/sec`}</p>
                       </div>
                     );
                   }
